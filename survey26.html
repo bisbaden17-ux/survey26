@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌟 나의 반짝반짝 역량 탐험 🌟</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Jua', sans-serif;
+            background-color: #fef9c3; /* 따뜻하고 부드러운 노란빛 크림색 */
+            background-image: radial-gradient(#fde047 1.5px, transparent 1.5px), radial-gradient(#fde047 1.5px, #fef9c3 1.5px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* 태블릿/모바일 터치 물리 반응 */
+        .scale-btn {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .scale-btn:active {
+            transform: scale(0.92);
+        }
+        .bounce-hover:hover {
+            transform: translateY(-4px);
+        }
+        /* 화면 전환 페이드 애니메이션 */
+        .page-transition {
+            transition: opacity 0.3s ease-in-out;
+        }
+        /* 미체크 문항 강제 강조 테두리 효과 */
+        .unanswered-card {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.35);
+            background-color: #fef2f2 !important;
+        }
+        /* 스크롤바 디자인 */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fef9c3; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #facc15; 
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col items-center py-6 px-4 sm:px-6 lg:px-8">
+
+    <!-- 시작 화면 구성 -->
+    <div id="intro-screen" class="w-full max-w-3xl bg-white rounded-3xl shadow-2xl border-8 border-yellow-300 flex flex-col items-center justify-center min-h-[85vh] p-6 sm:p-10 text-center relative overflow-hidden">
+        
+        <!-- 데코레이션 일러스트 느낌의 구체 요소 배경 -->
+        <div class="absolute -top-10 -left-10 w-32 h-32 bg-yellow-200 rounded-full opacity-60"></div>
+        <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-pink-200 rounded-full opacity-60"></div>
+        <div class="absolute top-1/4 right-5 w-12 h-12 bg-sky-200 rounded-full opacity-50"></div>
+
+        <div class="z-10">
+            <span class="text-5xl sm:text-6xl mb-4 block animate-bounce">🎒</span>
+            <h1 class="text-3xl md:text-5xl font-black text-amber-500 mb-2 leading-tight drop-shadow">2026. 학생 핵심 역량 검사</h1>
+            <h2 class="text-2xl md:text-3xl font-bold text-amber-400 mb-8">(초등 저학년용)</h2>
+        </div>
+
+        <div class="w-full max-w-md space-y-4 text-left mb-8 z-10 bg-yellow-50/50 p-6 rounded-2xl border-2 border-yellow-200">
+            <div>
+                <label class="block text-slate-700 text-lg font-bold mb-1 ml-1">🏫 학교 이름</label>
+                <input type="text" id="input-school" class="w-full px-5 py-3 rounded-2xl border-3 border-amber-200 focus:border-amber-400 focus:ring-4 focus:ring-amber-100 outline-none text-xl transition-all" placeholder="예: 한국초등학교">
+            </div>
+            <div>
+                <label class="block text-slate-700 text-lg font-bold mb-1 ml-1">🎒 학년</label>
+                <input type="text" id="input-grade" class="w-full px-5 py-3 rounded-2xl border-3 border-amber-200 focus:border-amber-400 focus:ring-4 focus:ring-amber-100 outline-none text-xl transition-all" placeholder="예: 1학년">
+            </div>
+            <div>
+                <label class="block text-slate-700 text-lg font-bold mb-1 ml-1">👦👧 내 이름</label>
+                <input type="text" id="input-name" class="w-full px-5 py-3 rounded-2xl border-3 border-amber-200 focus:border-amber-400 focus:ring-4 focus:ring-amber-100 outline-none text-xl transition-all" placeholder="예: 김민수">
+            </div>
+        </div>
+
+        <button onclick="startSurvey()" class="bg-amber-400 hover:bg-amber-500 active:translate-y-1 text-slate-800 text-2xl font-bold py-4 px-12 rounded-full shadow-lg transform transition hover:scale-105 z-10">
+            탐험 시작하기 🚀
+        </button>
+    </div>
+
+    <!-- 설문 전용 앱 메인 바디 -->
+    <div id="survey-app" class="hidden w-full max-w-3xl bg-white rounded-3xl shadow-2xl border-8 border-yellow-300 flex-col min-h-[85vh]">
+        
+        <!-- 고정형 상단 헤더 -->
+        <header class="bg-amber-400 p-6 text-center text-slate-800 rounded-t-xl relative border-b-4 border-yellow-200">
+            <h1 class="text-2xl sm:text-3.5xl tracking-wide font-black">🌟 나의 반짝반짝 마음 탐험 🌟</h1>
+            <p class="mt-1 text-amber-900 text-base sm:text-lg">내 생각과 가장 똑같은 단추를 꾹 눌러주세요!</p>
+            
+            <!-- 진행 상태 가시성 제어 (프로그레스바) -->
+            <div class="mt-4 bg-amber-200/50 rounded-full h-5 overflow-hidden relative border border-amber-300" id="progress-container">
+                <div id="progress-bar" class="bg-gradient-to-r from-orange-400 to-amber-500 h-full rounded-full transition-all duration-500 ease-out" style="width: 0%;"></div>
+            </div>
+            <div class="mt-2 text-sm sm:text-base text-amber-950 font-bold" id="progress-text">탐험 준비 중...</div>
+        </header>
+
+        <!-- 핵심 문항 출력 공간 -->
+        <main class="flex-grow p-4 sm:p-6 relative bg-yellow-50/20">
+            
+            <!-- 동적 주입될 질문 목록 컨테이너 -->
+            <div id="step-container" class="space-y-6 pb-20 page-transition"></div>
+
+            <!-- 결과 리포트 출력 컨테이너 -->
+            <div id="results-container" class="hidden flex-col items-center justify-center space-y-8 py-8 px-4">
+                <div class="text-center">
+                    <span class="text-6xl animate-bounce block">🏆</span>
+                    <h2 class="text-3xl sm:text-4xl text-amber-500 font-extrabold mb-1 mt-2">참 잘했어요! 탐험 완료!</h2>
+                    <p class="text-lg sm:text-xl text-slate-500 font-bold">선생님과 함께 나의 반짝이는 마음 결과를 확인해보아요.</p>
+                </div>
+
+                <!-- 학생 인적사항 표시 배지 -->
+                <div id="student-badge" class="w-full max-w-xl bg-gradient-to-r from-amber-100 to-yellow-100 border-3 border-amber-300 p-4 rounded-2xl text-center text-amber-900 font-extrabold text-lg sm:text-xl shadow"></div>
+                
+                <!-- 하위영역별 2줄 막대그래프 출력 공간 -->
+                <div id="result-visualizations" class="w-full max-w-2xl space-y-6"></div>
+                
+                <button onclick="location.reload()" class="mt-6 bg-amber-400 hover:bg-amber-500 text-slate-800 text-xl font-bold py-4 px-10 rounded-full shadow-lg transform transition hover:-translate-y-1">
+                    처음부터 다시 하기 🔄
+                </button>
+            </div>
+
+        </main>
+
+        <!-- 컨트롤 풋터 영역 -->
+        <footer id="nav-footer" class="bg-white border-t-4 border-yellow-100 p-4 sm:p-6 flex justify-between items-center z-10 sticky bottom-0 rounded-b-2xl">
+            <button id="btn-prev" onclick="goPrev()" class="hidden px-5 py-3 rounded-2xl border-3 border-slate-300 text-slate-600 text-lg font-bold hover:bg-slate-50 active:scale-95 transition-all">
+                ◀ 이전으로
+            </button>
+            <div class="flex-grow"></div>
+            <button id="btn-next" onclick="goNext()" class="bg-amber-400 hover:bg-amber-500 text-slate-800 px-8 py-3 rounded-2xl text-xl font-black shadow-md active:scale-95 transition-all">
+                다음으로 ▶
+            </button>
+            <button id="btn-submit" onclick="showResults()" class="hidden bg-orange-400 hover:bg-orange-500 text-white px-8 py-3 rounded-2xl text-xl font-black shadow-md active:scale-95 transition-all">
+                결과 확인하기 🎁
+            </button>
+        </footer>
+    </div>
+
+    <!-- 미체크 예방 전용 커스텀 팝업 모달 -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full mx-4 shadow-2xl border-4 border-red-400 transform scale-95 transition-transform duration-300" id="custom-modal-content">
+            <div class="text-center">
+                <div class="text-6xl mb-3">⚠️</div>
+                <h3 class="text-2xl text-red-500 font-extrabold mb-2" id="modal-title">빠뜨린 질문이 있어요!</h3>
+                <p class="text-base sm:text-lg text-slate-600 mb-6" id="modal-message">아이들이 모든 별표를 채워야 끝마칠 수 있어요.</p>
+                <button onclick="closeModal()" class="w-full bg-red-400 hover:bg-red-500 text-white text-lg font-bold py-3 rounded-xl transition-all">
+                    확인하고 채우기!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 선생님께서 새로이 제공해주신 6가지 핵심역량 및 12개 하위영역(각 4문항, 총 48문항) 데이터셋
+        const surveyData = [
+            {
+                id: 'c1',
+                title: '🌱 자기관리 역량 (스스로 크는 힘)',
+                category: '자기관리',
+                color: 'text-emerald-600',
+                bgColor: 'bg-emerald-50/50',
+                borderColor: 'border-emerald-200',
+                headerBg: 'bg-emerald-100',
+                sub1: {
+                    name: '자아인식 (내 마음 알기) 😄',
+                    questions: [
+                        "내가 무엇을 좋아하고 무엇을 싫어하는지 잘 알고 있어요.",
+                        "내가 잘하는 것과 조금 어려워하는 것을 알고 있어요.",
+                        "화가 나거나 슬플 때, 내 기분이 어떤지 말할 수 있어요.",
+                        "나는 세상에서 하나뿐인 소중한 사람이라고 생각해요."
+                    ]
+                },
+                sub2: {
+                    name: '자기주도성 (스스로 하기) 📝',
+                    questions: [
+                        "학교에 갈 준비물이나 내 가방을 나 혼자서 챙길 수 있어요.",
+                        "숙제나 할 일이 있으면 미루지 않고 스스로 시작해요.",
+                        "어려운 일이 생겨도 쉽게 포기하지 않고 \"할 수 있다\"고 믿고 다시 해봐요.",
+                        "내가 해야 할 일이 많을 때는 순서를 정해서 하나씩 차근차근 해내요."
+                    ]
+                }
+            },
+            {
+                id: 'c2',
+                title: '🔍 지식정보처리 역량 (알쏭달쏭 해결하는 힘)',
+                category: '지식정보처리',
+                color: 'text-indigo-600',
+                bgColor: 'bg-indigo-50/50',
+                borderColor: 'border-indigo-200',
+                headerBg: 'bg-indigo-100',
+                sub1: {
+                    name: '정보 탐색 (궁금한 것 찾기) 🕵️‍♂️',
+                    questions: [
+                        "모르는 것이 생기면 선생님이나 어른들께 부끄러워하지 않고 질문해요.",
+                        "궁금한 점이 있으면 그림책이나 인터넷에서 스스로 찾아보려고 노력해요.",
+                        "새로운 것을 배우거나 모르는 것을 알아가는 과정이 재미있어요.",
+                        "내가 찾은 여러 가지 이야기 중에서 나에게 진짜 필요한 것이 무엇인지 알 수 있어요."
+                    ]
+                },
+                sub2: {
+                    name: '매체 및 도구 활용 (도구 잘 쓰기) 🛠️',
+                    questions: [
+                        "가위, 풀, 색연필 같은 학용품의 쓰임새를 알고 안전하게 써요.",
+                        "학교에서 태블릿이나 컴퓨터를 쓸 때, 정해진 규칙에 맞게 사용할 수 있어요.",
+                        "사진을 찍거나 그림을 그릴 때 필요한 도구를 잘 골라서 써요.",
+                        "내가 배운 내용을 글이나 그림, 사진으로 정리해서 남길 수 있어요."
+                    ]
+                }
+            },
+            {
+                id: 'c3',
+                title: '💡 창의적 사고 역량 (말랑말랑 생각하는 힘)',
+                category: '창의적 사고',
+                color: 'text-purple-600',
+                bgColor: 'bg-purple-50/50',
+                borderColor: 'border-purple-200',
+                headerBg: 'bg-purple-100',
+                sub1: {
+                    name: '독창성 (새로운 생각하기) 🎨',
+                    questions: [
+                        "다른 친구들이 생각하지 못한 재미있고 신기한 상상을 잘해요.",
+                        "그림을 그리거나 만들기를 할 때, 남들을 따라 하기보다 나만의 방법으로 해보고 싶어요.",
+                        "평소에 호기심이 많아서 \"만약에 ~라면 어떨까?\"라는 질문을 자주 해요.",
+                        "무언가를 꾸밀 때 한 가지 색깔만 쓰지 않고 여러 가지 색이나 재료를 섞어봐요."
+                    ]
+                },
+                sub2: {
+                    name: '문제해결 다양성 (다른 방법 찾기) 🧩',
+                    questions: [
+                        "정답이 꼭 하나만 있다고 생각하지 않고, 또 다른 답이 있을지 찾아봐요.",
+                        "어떤 문제가 잘 안 풀릴 때, 원래 하던 방법 말고 새로운 방법을 써봐요.",
+                        "내 생각과 친구의 생각이 다를 때, 두 가지를 합쳐서 더 멋진 생각을 만들어요.",
+                        "친구들에게 내 생각을 말할 때 말로만 하지 않고 그림, 글, 몸짓 등 여러 가지 방법으로 보여줘요."
+                    ]
+                }
+            },
+            {
+                id: 'c4',
+                title: '💖 심미적 감성 역량 (몽글몽글 감동하는 힘)',
+                category: '심미적 감성',
+                color: 'text-pink-600',
+                bgColor: 'bg-pink-50/50',
+                borderColor: 'border-pink-200',
+                headerBg: 'bg-pink-100',
+                sub1: {
+                    name: '심미적 감수성 (아름다움 느끼기) 🌸',
+                    questions: [
+                        "재미있는 그림책을 보거나 아름다운 노래를 들을 때 가슴이 뭉클하거나 감동을 느껴요.",
+                        "예쁜 꽃, 둥게 뜬 구름, 나무 같은 자연을 가만히 살펴보는 것을 좋아해요.",
+                        "다른 사람이 만든 예술 작품(그림, 음악, 연극 등)을 보는 것이 즐거워요.",
+                        "우리 동네나 교실이 깨끗하고 예뻐지면 내 기분도 함께 좋아져요."
+                    ]
+                },
+                sub2: {
+                    name: '감정 표현 (내 마음 표현하기) 🎭',
+                    questions: [
+                        "재미있거나 신나는 일이 있으면 나의 표정이나 몸짓으로 잘 표현해요.",
+                        "아름다운 것을 보았을 때 느낀 기분을 그림이나 글로 솔직하게 나타낼 수 있어요.",
+                        "노래를 부르거나 춤을 추면서 내 마음을 보여주는 활동을 좋아해요.",
+                        "다른 사람의 멋진 작품을 보고 나서 내 느낌이 어땠는지 친구들에게 말할 수 있어요."
+                    ]
+                }
+            },
+            {
+                id: 'c5',
+                title: '🗣️ 의사소통 역량 (귀 기울이고 말하는 힘)',
+                category: '의사소통',
+                color: 'text-amber-600',
+                bgColor: 'bg-amber-50/50',
+                borderColor: 'border-amber-200',
+                headerBg: 'bg-amber-100',
+                sub1: {
+                    name: '경청 (귀 기울여 듣기) 👂',
+                    questions: [
+                        "친구가 말할 때 장난치지 않고 눈을 바라보며 끝까지 잘 들어요.",
+                        "선생님이나 친구가 이야기하는 내용이 무슨 뜻인지 잘 이해하려고 노력해요.",
+                        "친구가 슬프거나 기쁜 이야기를 할 때, 나도 같이 슬퍼하거나 기뻐해 줘요.",
+                        "다른 사람의 말을 다 듣고 나서, 내가 더 궁금한 점을 바르게 물어봐요."
+                    ]
+                },
+                sub2: {
+                    name: '표현력 (내 생각 말하기) 💬',
+                    questions: [
+                        "친구들에게 내 생각이나 느낌을 또박또박 자신 있게 말할 수 있어요.",
+                        "나쁜 말을 쓰지 않고, 예쁘고 고운 말을 사용해서 내 마음을 전달해요.",
+                        "내가 하고 싶은 말이 있어도 다른 사람의 말이 끝날 때까지 꾹 참고 기다려요.",
+                        "친구와 의견이 다를 때 화내지 않고, 왜 그렇게 생각하는지 차분히 설명해요."
+                    ]
+                }
+            },
+            {
+                id: 'c6',
+                title: '🤝 공동체 역량 (도란도란 함께하는 힘)',
+                category: '공동체',
+                color: 'text-sky-600',
+                bgColor: 'bg-sky-50/50',
+                borderColor: 'border-sky-200',
+                headerBg: 'bg-sky-100',
+                sub1: {
+                    name: '배려와 협력 (친구와 사이좋게 지내기) 🤝',
+                    questions: [
+                        "혼자 하는 것보다 친구들과 함께 힘을 모아서 활동하는 것이 더 좋아요.",
+                        "도움이 필요한 친구를 보면 모른 척하지 않고 먼저 다가가서 도와줘요.",
+                        "모둠 활동을 할 때 내가 맡은 역할이나 할 일을 끝까지 잘 해내요.",
+                        "친구와 다투었을 때 먼저 \"미안해\"라고 말하며 화해할 수 있어요."
+                    ]
+                },
+                sub2: {
+                    name: '규칙 준수 (약속 잘 지키기) 🏫',
+                    questions: [
+                        "학교나 교실에서 정한 규칙과 약속을 잘 기억하고 지켜요.",
+                        "선생님이나 어른이 보지 않을 때에도 떠들지 않고 바르게 행동해요.",
+                        "놀이나 게임을 할 때 지더라도 화내지 않고 놀이 규칙을 잘 따라요.",
+                        "물건을 아껴 쓰고, 쓰레기를 함부로 버리지 않으며 환경을 보호해요."
+                    ]
+                }
+            }
+        ];
+
+        // 아동용 5단계 글자 중심 정성적 반응지
+        const scaleOptions = [
+            { value: 1, label: '전혀 안 그래요', emoji: '😭', baseClass: 'bg-red-50 text-red-600 border-red-200', activeClass: 'bg-red-500 text-white border-red-600 ring-4 ring-red-200' },
+            { value: 2, label: '조금 안 그래요', emoji: '🙁', baseClass: 'bg-orange-50 text-orange-600 border-orange-200', activeClass: 'bg-orange-400 text-white border-orange-500 ring-4 ring-orange-200' },
+            { value: 3, label: '보통이에요', emoji: '😐', baseClass: 'bg-yellow-50 text-yellow-700 border-yellow-200', activeClass: 'bg-yellow-400 text-yellow-900 border-yellow-500 ring-4 ring-yellow-200' },
+            { value: 4, label: '그래요', emoji: '😊', baseClass: 'bg-lime-50 text-lime-700 border-lime-200', activeClass: 'bg-lime-500 text-white border-lime-600 ring-4 ring-lime-200' },
+            { value: 5, label: '정말 그래요', emoji: '🥰', baseClass: 'bg-green-50 text-green-700 border-green-200', activeClass: 'bg-green-500 text-white border-green-600 ring-4 ring-green-200' }
+        ];
+
+        let currentStep = 0;
+        let answers = {}; // 문항 코드 대 응답값 딕셔너리
+        let shuffledQuestions = []; // 현재 역량 내에서 랜덤 섞인 문항 목록 저장고
+        let userInfo = {};
+
+        const stepContainer = document.getElementById('step-container');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const btnSubmit = document.getElementById('btn-submit');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+
+        // 모든 48문항 대상 답변 맵 빈 데이터 초기화
+        function initAnswers() {
+            surveyData.forEach(comp => {
+                for (let i = 0; i < 4; i++) {
+                    answers[`${comp.id}_sub1_${i}`] = null;
+                    answers[`${comp.id}_sub2_${i}`] = null;
+                }
+            });
+        }
+
+        // 해당 인덱스 단계 문항 8가지를 섞는 알고리즘 (Fisher-Yates Shuffle)
+        function prepareStepQuestions(stepIdx) {
+            const comp = surveyData[stepIdx];
+            let list = [];
+            
+            comp.sub1.questions.forEach((q, idx) => {
+                list.push({ text: q, subType: 'sub1', originalIdx: idx });
+            });
+            comp.sub2.questions.forEach((q, idx) => {
+                list.push({ text: q, subType: 'sub2', originalIdx: idx });
+            });
+
+            for (let i = list.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [list[i], list[j]] = [list[j], list[i]];
+            }
+
+            shuffledQuestions = list;
+        }
+
+        // 문장 시작 및 입력 유효성 검사 실행
+        function startSurvey() {
+            const school = document.getElementById('input-school').value.trim();
+            const grade = document.getElementById('input-grade').value.trim();
+            const name = document.getElementById('input-name').value.trim();
+
+            if (!school || !grade || !name) {
+                showModal("알림", "친구들의 학교, 학년, 이름을 모두 적어주세요!");
+                return;
+            }
+
+            userInfo = { school, grade, name };
+
+            document.getElementById('intro-screen').classList.add('hidden');
+            document.getElementById('survey-app').classList.remove('hidden');
+            document.getElementById('survey-app').classList.add('flex');
+
+            initAnswers();
+            prepareStepQuestions(0);
+            renderStep(true); // 처음 렌더링은 상단 스크롤 적용
+        }
+
+        // 문항 렌더러 (shouldScroll 매개변수를 추가하여 스크롤 오버헤드 완화)
+        function renderStep(shouldScroll = false) {
+            const buildHTML = () => {
+                const comp = surveyData[currentStep];
+                let html = `
+                    <div class="mb-6 text-center bg-white p-4 rounded-2xl border-3 ${comp.borderColor} shadow-sm">
+                        <span class="text-4xl block mb-1">🎁</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold ${comp.color}">${comp.title}</h2>
+                        <p class="text-lg text-slate-500 font-bold mt-1">(${comp.category})</p>
+                    </div>
+                `;
+
+                shuffledQuestions.forEach((qObj, renderIdx) => {
+                    const ansKey = `${comp.id}_${qObj.subType}_${qObj.originalIdx}`;
+                    const currentAnswer = answers[ansKey];
+                    const isUnanswered = qObj.flagWarning === true;
+
+                    html += `
+                        <div id="card-${ansKey}" class="bg-white rounded-3xl p-5 border-3 transition-all duration-300 ${isUnanswered ? 'unanswered-card' : comp.borderColor} shadow-md relative">
+                            ${isUnanswered ? `<span class="absolute top-3 right-3 text-red-500 font-extrabold text-sm animate-pulse">꼭 체크해 주세요! 🛑</span>` : ''}
+                            <h3 class="text-xl sm:text-2xl text-slate-800 mb-5 font-bold leading-relaxed">
+                                <span class="text-slate-300 mr-2">Q${renderIdx + 1}.</span>${qObj.text}
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                    `;
+
+                    scaleOptions.forEach(opt => {
+                        const isSelected = currentAnswer === opt.value;
+                        const btnClass = isSelected ? opt.activeClass : opt.baseClass;
+                        const scaleTransform = isSelected ? 'scale(1.05) translateY(-3px)' : 'scale(1)';
+
+                        html += `
+                            <button onclick="selectOption('${ansKey}', ${opt.value})" 
+                                    class="scale-btn flex sm:flex-col items-center justify-start sm:justify-center p-3 sm:py-4 sm:px-2 rounded-2xl border-3 font-extrabold transition-all ${btnClass}"
+                                    style="transform: ${scaleTransform}">
+                                <span class="text-3.5xl sm:text-4.5xl mr-3 sm:mr-0 sm:mb-2">${opt.emoji}</span>
+                                <span class="text-lg sm:text-base tracking-tight leading-tight">${opt.label}</span>
+                            </button>
+                        `;
+                    });
+
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                });
+
+                stepContainer.innerHTML = html;
+                updateNavigation();
+                updateProgress();
+            };
+
+            if (shouldScroll) {
+                // 단계 자체를 넘어갈 때만 페이드 아웃 & 스크롤 업 처리
+                stepContainer.style.opacity = 0;
+                setTimeout(() => {
+                    buildHTML();
+                    stepContainer.style.opacity = 1;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 250);
+            } else {
+                // 단순 버튼 선택 시에는 딜레이와 스크롤 이동 없이 즉각적으로 DOM을 교체해 스냅감 극대화
+                buildHTML();
+                stepContainer.style.opacity = 1;
+            }
+        }
+
+        // 옵션 터치 감응
+        function selectOption(ansKey, value) {
+            answers[ansKey] = value;
+            
+            // 미답변 알림 테두리 실시간 제거
+            const matchingQ = shuffledQuestions.find(q => `${surveyData[currentStep].id}_${q.subType}_${q.originalIdx}` === ansKey);
+            if (matchingQ) {
+                delete matchingQ.flagWarning;
+            }
+
+            // 단순 선택이므로 스크롤을 원위치로 유지하기 위해 shouldScroll = false 전달
+            renderStep(false);
+        }
+
+        function updateProgress() {
+            let totalQ = 48; // 6역량 * 8문항 = 총 48문항
+            let answeredCount = Object.values(answers).filter(v => v !== null).length;
+            
+            let percent = (answeredCount / totalQ) * 100;
+            progressBar.style.width = `${percent}%`;
+            progressText.innerText = `${currentStep + 1} / 6 단계 (총 ${totalQ}문제 중 ${answeredCount}개 체크 완료!)`;
+        }
+
+        function updateNavigation() {
+            btnPrev.classList.toggle('hidden', currentStep === 0);
+
+            const isLast = currentStep === surveyData.length - 1;
+            btnNext.classList.toggle('hidden', isLast);
+            btnSubmit.classList.toggle('hidden', !isLast);
+        }
+
+        // 누락 확인용 유효성 제어
+        function validateCurrentStep() {
+            const comp = surveyData[currentStep];
+            let allAnswered = true;
+
+            shuffledQuestions.forEach(q => {
+                const ansKey = `${comp.id}_${q.subType}_${q.originalIdx}`;
+                if (answers[ansKey] === null) {
+                    q.flagWarning = true;
+                    allAnswered = false;
+                }
+            });
+
+            if (!allAnswered) {
+                // 경고 테두리 갱신 시에는 화면 상단 스크롤을 막아 해당 미체크 문항으로의 스크롤 작동 유도
+                renderStep(false); 
+                
+                showModal("체크가 안 됐어요!", "아직 대답을 안 한 질문이 있어요.<br>빨간색 상자로 변한 곳에 예쁘게 대답해주세요!");
+
+                // 첫 미답변 노드로 포커스 이동
+                setTimeout(() => {
+                    const firstUnanswered = shuffledQuestions.find(q => answers[`${comp.id}_${q.subType}_${q.originalIdx}`] === null);
+                    if (firstUnanswered) {
+                        const targetKey = `${comp.id}_${firstUnanswered.subType}_${firstUnanswered.originalIdx}`;
+                        const targetEl = document.getElementById(`card-${targetKey}`);
+                        if (targetEl) {
+                            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                }, 400);
+
+                return false;
+            }
+            return true;
+        }
+
+        function goNext() {
+            if (!validateCurrentStep()) return;
+            if (currentStep < surveyData.length - 1) {
+                currentStep++;
+                prepareStepQuestions(currentStep);
+                renderStep(true); // 다음 단계 이동 시에만 상단 스크롤
+            }
+        }
+
+        function goPrev() {
+            if (currentStep > 0) {
+                currentStep--;
+                prepareStepQuestions(currentStep);
+                renderStep(true); // 이전 단계 이동 시에만 상단 스크롤
+            }
+        }
+
+        // 결과 연산 및 차트 시각화
+        function showResults() {
+            if (!validateCurrentStep()) return;
+
+            // 설문 메인 제어기 비활성화
+            stepContainer.classList.add('hidden');
+            document.getElementById('nav-footer').classList.add('hidden');
+
+            // 배지 적용
+            document.getElementById('student-badge').innerHTML = `
+                🏫 ${userInfo.school} &nbsp;🎒 ${userInfo.grade} &nbsp;👦👧 ${userInfo.name}
+            `;
+
+            let visualHtml = '';
+            let payload = {
+                school: userInfo.school,
+                grade: userInfo.grade,
+                name: userInfo.name
+            };
+
+            surveyData.forEach(comp => {
+                // 하위 요소 1 평균 점수 (각 4문항 합 / 4)
+                let sub1Sum = 0;
+                for (let i = 0; i < 4; i++) {
+                    sub1Sum += answers[`${comp.id}_sub1_${i}`];
+                }
+                const sub1Avg = (sub1Sum / 4).toFixed(1);
+
+                // 하위 요소 2 평균 점수
+                let sub2Sum = 0;
+                for (let i = 0; i < 4; i++) {
+                    sub2Sum += answers[`${comp.id}_sub2_${i}`];
+                }
+                const sub2Avg = (sub2Sum / 4).toFixed(1);
+
+                // 데이터 수집 스프레드시트 매핑용 값 탑재
+                payload[`${comp.id}_sub1`] = parseFloat(sub1Avg);
+                payload[`${comp.id}_sub2`] = parseFloat(sub2Avg);
+
+                // 바 그래프 도색용 환산 백분율
+                const sub1Percent = (parseFloat(sub1Avg) / 5) * 100;
+                const sub2Percent = (parseFloat(sub2Avg) / 5) * 100;
+
+                visualHtml += `
+                    <div class="bg-white p-6 rounded-3xl shadow-lg border-4 ${comp.borderColor} transform transition duration-300 hover:scale-[1.01]">
+                        <h3 class="text-2xl font-black ${comp.color} mb-4 border-b-2 pb-2 flex items-center justify-between">
+                            <span>${comp.title}</span>
+                            <span class="text-sm text-slate-400 font-normal">평균 점수 (5점 만점)</span>
+                        </h3>
+                        
+                        <!-- 2개의 하위요소를 나란히 가로 막대비교 레이아웃 형태로 배치 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            
+                            <!-- 하위영역 1 그래프 -->
+                            <div class="flex flex-col">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-lg font-extrabold text-slate-700">${comp.sub1.name}</span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-9 rounded-full overflow-hidden border-2 border-slate-200 relative shadow-inner">
+                                    <div class="bg-gradient-to-r from-teal-400 to-emerald-400 h-full rounded-full transition-all duration-1000" style="width: ${sub1Percent}%;"></div>
+                                </div>
+                                <div class="mt-2 text-right">
+                                    <span class="text-2xl font-black text-emerald-600">${sub1Avg}</span>
+                                    <span class="text-base text-slate-400"> / 5점</span>
+                                </div>
+                            </div>
+
+                            <!-- 하위영역 2 그래프 -->
+                            <div class="flex flex-col">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-lg font-extrabold text-slate-700">${comp.sub2.name}</span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-9 rounded-full overflow-hidden border-2 border-slate-200 relative shadow-inner">
+                                    <div class="bg-gradient-to-r from-orange-400 to-amber-400 h-full rounded-full transition-all duration-1000" style="width: ${sub2Percent}%;"></div>
+                                </div>
+                                <div class="mt-2 text-right">
+                                    <span class="text-2xl font-black text-amber-500">${sub2Avg}</span>
+                                    <span class="text-base text-slate-400"> / 5점</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('result-visualizations').innerHTML = visualHtml;
+
+            // 결과 보드 표시
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.classList.remove('hidden');
+            resultsContainer.classList.add('flex');
+
+            // 축하 상태 전환
+            progressBar.style.width = '100%';
+            progressBar.classList.remove('from-orange-400', 'to-amber-500');
+            progressBar.classList.add('from-green-400', 'to-emerald-500');
+            progressText.innerText = "놀라워요! 탐험 미션 성공 🏅";
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // ★ 선생님, 아래 scriptURL 변수에 구글 앱스 스크립트 웹 앱 배포 URL을 입력해 주시면 스프레드시트로의 실시간 누적 연동이 자동으로 유지됩니다!
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbysd-lQQn2cb193fiYO9q8mSo5-6cp8N8kIZ-egiT0QhgcWjGsGG-8s_6ItLc7ycsk/exec'; 
+
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                console.log("V3 결과 스프레드시트 동기화 성공!");
+            }).catch(err => {
+                console.error("V3 스프레드시트 동기화 실패:", err);
+            });
+        }
+
+        // 모달 관리 헬퍼
+        function showModal(title, message) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerHTML = message;
+            const modal = document.getElementById('custom-modal');
+            const modalContent = document.getElementById('custom-modal-content');
+            
+            modal.classList.remove('hidden');
+            void modal.offsetWidth; // 브라우저 리플로우 트리거 유도
+            modal.classList.remove('opacity-0');
+            modalContent.classList.remove('scale-95');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('custom-modal');
+            const modalContent = document.getElementById('custom-modal-content');
+            
+            modal.classList.add('opacity-0');
+            modalContent.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+    </script>
+</body>
+</html>
